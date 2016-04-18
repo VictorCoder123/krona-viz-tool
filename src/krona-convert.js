@@ -1,4 +1,13 @@
+/**
+ * This is a Class used to generate processed HTML string based on
+ * the template passed into constructor as parameter, you can also
+ * use customized template with <% KronaXML %> inside to be replaced
+ * in EJS processing.
+ *
+ * @author Qishen  https://github.com/VictorCoder123
+ */
 
+var $ = require('jquery');
 
 var KronaConvert = function (kronaTemplate) {
     var mainNodeString = '<node name="Grenanda RNA no rRNA"></node>';
