@@ -16,10 +16,12 @@
     "D3.js"
   ],
   "dependencies": {
+    "ejs": "^2.4.1",
     "fs": "0.0.2",
-    "jquery": "^2.2.3",
+    "lodash": "^4.11.1",
     "path": "^0.12.7",
-    "q": "^1.4.1"
+    "q": "^1.4.1",
+    "xmldom": "^0.1.22"
   },
   "devDependencies": {},
   "author": "Qishen",

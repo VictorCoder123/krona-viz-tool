@@ -48,7 +48,7 @@ KronaGenerator.prototype.generate = function () {
  */
 KronaGenerator.prototype.writeSync = function (resultPath) {
   var resultContent = this.generate();
-  this.resultPath = resultPath || path.join(__dirname, '');
+  this.resultPath = resultPath || path.join(__dirname, './result.html');
   fs.writeFileSync(this.resultPath, resultContent);
 }
 
