@@ -9,6 +9,7 @@ var KronaGenerator = require('krona-viz-tool').KronaGenerator;
 var KronaConvertor = require('krona-viz-tool').KronaConvertor;
 // Specify the path of template and data file, otherwise use default.
 var generator = new KronaGenerator(template, data);
+// Get the content of generated HTML file.
 var result = generator.generate();
 // Write to given path, use default if not specified.
 generator.writeSync(result_path);

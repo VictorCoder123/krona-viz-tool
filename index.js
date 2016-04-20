@@ -22,6 +22,6 @@ if(require.main === module){
   // are not specified, then default files will be loaded.
   var generator = new KronaGenerator(template, data);
   var resultContent = generator.generate();
-  //console.log(resultContent);
-  //generator.writeSync(result);
+  console.log(resultContent);
+  generator.writeSync(result);
 }
