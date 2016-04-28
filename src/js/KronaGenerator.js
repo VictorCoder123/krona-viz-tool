@@ -23,10 +23,11 @@ define([
 
   /**
    * Convert plain text into XML and insert into HTML template.
-   * @param  {string} data
-   * @return {string}      String of whole html file
+   * @param  {string}  data
+   * @params {Integer} threshold   minimum value for filtering
+   * @return {string}              String of whole html file
    */
-  KronaGenerator.prototype.convert = function (data) {
+  KronaGenerator.prototype.convert = function (data, threshold) {
     var self = this;
     var serializer = new XMLSerializer();
     var re = /\S+/g; // Match all non-space strings
@@ -48,18 +49,27 @@ define([
    * Helper method to convert single line into main XML
    * @param {Array} words  A list of names and attributes
    */
-  KronaGenerator.prototype.add = function (words) {
+  KronaGenerator.prototype.add = function (words, threshold) {
     var self = this;
+    threshold = threshold || 1000;
     var magnitude = parseInt(words[1]);
-    var list = words.slice(2);
+    var score = 1 - parseFloat(words[4]);
+
+    // Filter out small reads under threshold
+    if(magnitude < threshold) return;
+
+    var list = words.slice(5);
+
+    //console.log(list);
+
     var main_node = this.$xml.children('node').first();
     var parent_node = main_node;
     list.forEach(function(item){
-      self.updateValue(parent_node, magnitude);
+      self.updateValue(parent_node, magnitude, score);
       var child_node = parent_node.children('[name="' + item + '"]').first();
       // Create new node if name doesn't match in current level
       if(child_node.length === 0){
-        var new_node = $('<node>none</node>').attr('name', item);
+        var new_node = $('<node></node>').attr('name', item);
         parent_node.append(new_node);
         parent_node = new_node;
       }
@@ -67,27 +77,31 @@ define([
         parent_node = child_node;
       }
     });
-    self.updateValue(parent_node, magnitude);
+    self.updateValue(parent_node, magnitude, score);
   }
 
   /**
    * Set value if attribute magnitude does not exist, otherwise
    * add it to old value and update magnitude attribute.
    * @param  {Object} node
-   * @param  {Integer} value
+   * @param  {Integer} magValue
+   * @params {Integer} scoreValue
    * @return {void}
    */
-  KronaGenerator.prototype.updateValue = function (node, value) {
+  KronaGenerator.prototype.updateValue = function (node, magValue, scoreValue) {
     // Create new magnitude value if not existing.
     if(node.children('magnitude').length === 0){
-      var new_magnitude = $('<magnitude><val>none</val></magnitude>');
+      console.log(scoreValue);
+      var new_magnitude = $('<magnitude><val>' + magValue + '</val></magnitude>');
+      var new_score = $('<score><val>' + scoreValue + '</val></score>');
       node.append(new_magnitude);
-      node.children('magnitude').first().children('val').first().text(value);
+      node.append(new_score);
+      //node.children('magnitude').first().children('val').first().text(value);
     }
     else{
       var val_node = node.children('magnitude').first().children('val').first();
       var old_value = parseInt(val_node.text());
-      val_node.text(old_value + value);
+      val_node.text(old_value + magValue);
     }
   }
 
