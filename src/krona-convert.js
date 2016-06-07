@@ -19,8 +19,8 @@ var XMLSerializer = require('xmldom').XMLSerializer;
 var ejs = require('ejs');
 var _ = require('lodash');
 
-var KronaConvert = function (kronaTemplate) {
-  var mainNodeString = '<node name="Grenanda RNA no rRNA"></node>';
+var KronaConvert = function (kronaTemplate, rootName) {
+  var mainNodeString = '<node name="' + rootName + '"></node>';
   var parser = new DOMParser();
   this.$xml = parser.parseFromString(mainNodeString);
   this.kronaTemplate = kronaTemplate;
@@ -34,17 +34,22 @@ KronaConvert.prototype.constructor = KronaConvert;
 * @param  {string} data
 * @return {string}      String of whole html file
 */
-KronaConvert.prototype.convert = function (data) {
+KronaConvert.prototype.convert = function (data, filter) {
   var self = this;
   var serializer = new XMLSerializer();
   var re = /\S+/g; // Match all non-space strings
   var lines = data.split('\n');
-  lines.forEach(function(line){
+  lines.forEach(function(line, index){
     var words = line.match(re);
-    if(words !== null) self.add(words);
+    var weightXread = words[3];
+    // Ignore first column description line.
+    // Apply filter and add only if weightXread is larger than threshold
+    if(words !== null && index !== 0 && weightXread >= filter)
+      self.add(words);
   });
 
-  console.log(this.$xml.getElementsByTagName('node')[0].childNodes[0].childNodes[0]);
+
+  //console.log(this.$xml.getElementsByTagName('node')[0].childNodes[0].childNodes[0]);
 
   // Convert xml into string text and insert into ejs template
   var xmlString = serializer.serializeToString(this.$xml);
@@ -79,12 +84,16 @@ KronaConvert.prototype.childrenByAttribute = function (node, attr, value) {
 */
 KronaConvert.prototype.add = function (words) {
   var self = this;
-  var magnitude = parseInt(words[1]);
-  var list = words.slice(2);
+  // Extract information from splited words.
+  var taxID = words[0], readCount = words[1], weight = words[2],
+      weightXread = words[3], q = words[4];
+
+  var magnitude = parseInt(readCount);
+  var taxonomy_list = words.slice(5);
   var main_node = this.$xml.getElementsByTagName('node')[0];
   var parent_node = main_node;
 
-  list.forEach(function(item){
+  taxonomy_list.forEach(function(item){
     self.updateValue(parent_node, magnitude);
     var child_nodes = self.childrenByAttribute(parent_node, 'name', item);
     // Create new node if name doesn't match in current level

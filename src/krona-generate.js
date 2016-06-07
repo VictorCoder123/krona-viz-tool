@@ -13,13 +13,15 @@ var KronaConvert = require('./krona-convert.js');
 
 /**
  * Constructor for KronaGenerator class
- * @param {String} template  Path for template in file system
- * @param {String} data      Path for data in file system
+ * @params {Object} options  Options for KronaGenerator configuration
  */
-var KronaGenerator = function (template, data) {
+var KronaGenerator = function (options) {
   // Set path with default value if not specified in params
-  var templatePath = template || path.join(__dirname, './templates/krona.processed.html.ejs');
-  var dataPath = data || path.join(__dirname, './templates/data_example.txt');
+  var templatePath = options.template || path.join(__dirname, './templates/krona.processed.html.ejs');
+  var dataPath     = options.data || path.join(__dirname, './templates/data_example.txt');
+
+  this.root_name = options.root_name;
+  this.filter = options.filter;
 
   // Get template and data content
   this.templateContent = fs.readFileSync(templatePath, {'encoding': 'utf-8'});
@@ -34,9 +36,9 @@ KronaGenerator.prototype.constructor = KronaGenerator;
  * @return {String}
  */
 KronaGenerator.prototype.generate = function () {
-  // Use convertor to get result
-  var kronaConvertor = new KronaConvert(this.templateContent);
-  var resultContent = kronaConvertor.convert(this.dataContent);
+  // Create and use convertor to get result, root name and filter need be specified.
+  var kronaConvertor = new KronaConvert(this.templateContent, this.root_name);
+  var resultContent = kronaConvertor.convert(this.dataContent, this.filter);
   return resultContent;
 }
 
